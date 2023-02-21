@@ -20,7 +20,7 @@ In your NixOS system configuration, add this flake to your inputs and enable the
       haskellUpdates = import haskell-updates {
         inherit system;
       };
-    in
+    in {
       nixosConfigurations.hostname = nixpkgs.lib.nixosSystem {
         modules = [
           espial-nix.nixosModule
@@ -35,7 +35,8 @@ In your NixOS system configuration, add this flake to your inputs and enable the
             };
           }
         ];
-      }
+      };
+    };
 }
 ```
 

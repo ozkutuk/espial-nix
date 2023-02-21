@@ -30,7 +30,8 @@ let
 
 in {
   options.services.espial = {
-    enable = mkEnableOption "Espial, an open-source, web-based bookmarking server.";
+    enable =
+      mkEnableOption "Espial, an open-source, web-based bookmarking server.";
 
     package = mkOption {
       type = types.package;
@@ -122,9 +123,7 @@ in {
       # espial.gid = config.ids.gids.espial;
     };
 
-    networking.firewall = mkIf cfg.openFirewall {
-      allowedTCPPorts = [ 3000 ];
-    };
+    networking.firewall = mkIf cfg.openFirewall { allowedTCPPorts = [ 3000 ]; };
   };
 
   meta.maintainers = with lib.maintainers; [ ozkutuk ];
