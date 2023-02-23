@@ -23,14 +23,14 @@ In your NixOS system configuration, add this flake to your inputs and enable the
     in {
       nixosConfigurations.hostname = nixpkgs.lib.nixosSystem {
         modules = [
-          espial-nix.nixosModule
+          espial-nix.nixosModules.default
           {
             services.espial = {
               enable = true;
               package = haskellUpdates.haskellPackages.espial;
               database = {
                 user = "testuser";
-                passwordFile = "/etc/nixos/secrets/passwordFile-testuser";
+                passwordFile = "/run/secrets/passwordFile-testuser";
               };
             };
           }
