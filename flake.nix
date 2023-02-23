@@ -1,6 +1,16 @@
 {
-  description =
-    "A flake providing a NixOS module for the Espial bookmarking server";
+  description = "A flake providing a NixOS module for the Espial bookmarking server";
 
-  outputs = { self }: { nixosModule = ./espial-module.nix; };
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  };
+
+  outputs = {
+    self,
+    nixpkgs,
+  }: {
+    nixosModules.espial = import ./espial-module.nix;
+    nixosModules.default = self.nixosModules.espial;
+    formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.alejandra;
+  };
 }

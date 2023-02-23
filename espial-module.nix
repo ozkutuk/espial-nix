@@ -1,8 +1,10 @@
-{ pkgs, lib, config, ... }:
-
-with lib;
-
-let
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
+with lib; let
   cfg = config.services.espial;
 
   stateDir = "/var/lib/espial";
@@ -27,7 +29,6 @@ let
   migration = pkgs.writeShellScriptBin "espial-migration" ''
     ${cfg.package}/bin/migration $@
   '';
-
 in {
   options.services.espial = {
     enable =
@@ -62,13 +63,13 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [ migration ];
+    environment.systemPackages = [migration];
 
     systemd.services.espial = {
       description = "Espial server daemon.";
 
-      wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" ];
+      wantedBy = ["multi-user.target"];
+      after = ["network.target"];
 
       restartIfChanged = true;
 
@@ -94,8 +95,8 @@ in {
       };
     };
 
-    networking.firewall = mkIf cfg.openFirewall { allowedTCPPorts = [ 3000 ]; };
+    networking.firewall = mkIf cfg.openFirewall {allowedTCPPorts = [3000];};
   };
 
-  meta.maintainers = with lib.maintainers; [ ozkutuk ];
+  meta.maintainers = with lib.maintainers; [ozkutuk];
 }
