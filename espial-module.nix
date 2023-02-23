@@ -40,18 +40,6 @@ in {
       description = "Set version of espial package to use.";
     };
 
-    user = mkOption {
-      type = types.str;
-      default = "espial";
-      description = "User account under which Espial runs.";
-    };
-
-    group = mkOption {
-      type = types.str;
-      default = "espial";
-      description = "Group under which Espial runs.";
-    };
-
     database = {
       user = mkOption {
         type = types.str;
@@ -92,35 +80,18 @@ in {
       serviceConfig = {
         StateDirectory = "espial";
         WorkingDirectory = stateDir;
-        User = cfg.user;
-        Group = cfg.group;
+        DynamicUser = true;
+        LoadCredential = "espial-password:${cfg.database.passwordFile}";
         ExecStart = "${cfg.package}/bin/espial";
         ExecStartPre = [
-          # Run with escalated privileges because we need to read the
-          # password file.
-          ("+" + pkgs.writeShellScript "setup-espial" ''
-            cp -r ${dataFiles}/static ${dataFiles}/config ${stateDir}
+          (pkgs.writeShellScript "setup-espial" ''
+            cp -r --no-preserve=mode ${dataFiles}/static ${dataFiles}/config ${stateDir}/
             ${cfg.package}/bin/migration -- createdb --conn ${databasePath}
-            chown -R ${cfg.user}:${cfg.group} ${stateDir}
-            chmod -R 755 ${stateDir}
-            ${cfg.package}/bin/migration -- createuser --conn ${databasePath} --userName ${cfg.database.user} --userPasswordFile ${cfg.database.passwordFile}
+            ${cfg.package}/bin/migration -- createuser --conn ${databasePath} --userName ${cfg.database.user} --userPasswordFile $CREDENTIALS_DIRECTORY/espial-password
           '')
         ];
         Restart = "always";
       };
-    };
-
-    users.users = mkIf (cfg.user == "espial") {
-      espial = {
-        group = cfg.group;
-        uid = 325;
-        # uid = config.ids.uids.espial;
-      };
-    };
-
-    users.groups = mkIf (cfg.group == "espial") {
-      espial.gid = 325;
-      # espial.gid = config.ids.gids.espial;
     };
 
     networking.firewall = mkIf cfg.openFirewall { allowedTCPPorts = [ 3000 ]; };
